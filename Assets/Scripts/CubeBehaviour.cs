@@ -24,7 +24,7 @@ public class CubeBehaviour : MonoBehaviour
     {
         if (!loseGame)
         {
-            if (Input.GetMouseButton(0))
+            if (Input.GetMouseButton(0) && Mathf.Approximately(rb.velocity.x, 0) && Mathf.Approximately(rb.velocity.y, 0))
             {
                 line.positionCount = (int)(time * 10);
                 Vector3 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 15));
@@ -33,14 +33,13 @@ public class CubeBehaviour : MonoBehaviour
                 if (startVelocity.x < 0 && startVelocity.y > 0 && startVelocity.z > 0)
                 {
                     PlotTrajectory(transform.position, startVelocity, time / 10, time);
-                    settingLineEndPoint(transform.position, startVelocity, time);
                 }
                 else
                 {
                     line.positionCount = 0;
                 }
             }
-            if (Input.GetMouseButtonUp(0) && Mathf.Approximately(rb.velocity.x, 0) && Mathf.Approximately(rb.velocity.y, 0) && line.positionCount > 0)
+            if (Input.GetMouseButtonUp(0) && line.positionCount > 0)
             {
                 line.positionCount = 0;
                 Vector3 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 15));
@@ -52,13 +51,13 @@ public class CubeBehaviour : MonoBehaviour
     public void PlotTrajectory(Vector3 start, Vector3 startVelocity, float timestep, float maxTime)
     {
         Vector3 prev = start;
-        for (int i = 1; ; i++)
-        {
+        for (int i = 0; i < line.positionCount; i++)
+        {   
             float t = timestep * i;
             if (t > maxTime) break;
             Vector3 pos = PlotTrajectoryAtTime(start, startVelocity, t);
             if (Physics.Linecast(prev, pos)) break;
-            line.SetPosition(i - 1, pos);
+            line.SetPosition(i, pos);
             prev = pos;
         }
     }
@@ -66,11 +65,6 @@ public class CubeBehaviour : MonoBehaviour
     public Vector3 PlotTrajectoryAtTime(Vector3 start, Vector3 startVelocity, float time)
     {
         return start + startVelocity * time + Physics.gravity * time * time * 0.5f;
-    }
-
-    public void settingLineEndPoint(Vector3 start, Vector3 startVelocity, float time)
-    {
-        line.SetPosition(9, PlotTrajectoryAtTime(start, startVelocity, time));
     }
 
 }
